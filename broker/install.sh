@@ -49,8 +49,8 @@ firewall-cmd --zone=public --add-port  53/udp
 firewall-cmd --zone=public --add-port 123/udp
 
 
-echo "Installing IPA server ..."
-ipa-client-install --enable-dns-updates --ssh-trust-dns -U
+echo "Installing IPA client ..."
+ipa-client-install --enable-dns-updates --ssh-trust-dns -p admin -w $PASSWORD -U
 
 echo "Testing kinit"
 echo $PASSWORD | kinit admin
@@ -63,9 +63,6 @@ echo "Getting keytab for HTTP and DNS services"
 ipa-getkeytab -s $SERVER_FQDN -p HTTP/$BROKER_FQDN -k /etc/http.keytab
 ipa-getkeytab -s $SERVER_FQDN -p DNS/$BROKER_FQDN -k /etc/dns.keytab
 
-echo "Setting appropriate ownership for keytabs"
-chown apache:apache /etc/http.keytab
-chown apache:apache /etc/dns.keytab
 
 echo "Installing puppet"
 yum install puppet -y
@@ -89,18 +86,20 @@ service openshift-gears restart
 service openshift-node-web-proxy restart
 service mcollective restart
 
-echo "Testing nsupdate with gsstsig"
-nsupdate -g <<EOF
-server $SERVER_IP_ADDR
-update add nsupdate-test.$IPA_DOMAIN 60 CNAME $BROKER_FQDN
-send
-update delete nsupdate-test.$IPA_DOMAIN CNAME
-send
-quit
-EOF
+echo "Setting appropriate ownership for keytabs"
+chown apache:apache /etc/http.keytab
+chown apache:apache /etc/dns.keytab
 
 echo "IPA Client and OpenShift Broker complete. Please try the\
 the following commands to ensure correct setup:\
 kinit admin\
-curl -Ik --negotiate -u : https://$BROKER_FQDN/broker/rest/api/"
+curl -Ik --negotiate -u : https://$BROKER_FQDN/broker/rest/api/\
+nsupdate -g <<EOF\
+server $SERVER_IP_ADDR\
+update add nsupdate-test.$IPA_DOMAIN 60 CNAME $BROKER_FQDN\
+send\
+update delete nsupdate-test.$IPA_DOMAIN CNAME\
+send\
+quit\
+EOF"
 
