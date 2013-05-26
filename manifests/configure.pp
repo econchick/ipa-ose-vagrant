@@ -15,9 +15,10 @@ class { 'openshift_origin' :
   development_mode           => true,
   broker_auth_plugin         => 'kerberos',
   broker_dns_plugin          => 'nsupdate',
-  broker_dns_gsstsig         => true,
-  dns_kerberos_keytab        => '/etc/dns.keytab',
-  http_kerberos_keytab       => '/etc/http.keytab',
+  #broker_dns_gsstsig         => true,
+  #dns_kerberos_keytab        => '/etc/dns.keytab',
+  #http_kerberos_keytab       => '/etc/http.keytab',
+  kerberos_keytab            => '/etc/http.keytab',
   kerberos_realm             => 'EXAMPLE.COM',
   kerberos_service           => $::fqdn,
 }
