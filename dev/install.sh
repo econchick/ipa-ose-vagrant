@@ -50,7 +50,7 @@ firewall-cmd --zone=public --add-port 123/udp
 
 
 echo "Installing IPA server ..."
-ipa-client-install --enable-dns-updates --ssh-trust-dns -U
+ipa-client-install --enable-dns-updates --ssh-trust-dns -p admin -w $PASSWORD -U
 
 echo "Testing kinit"
 echo $PASSWORD | kinit admin
